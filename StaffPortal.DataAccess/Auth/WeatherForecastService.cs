@@ -1,4 +1,4 @@
-namespace StaffPortal.Data
+namespace StaffPortal.DataAccess.Auth
 {
     public class WeatherForecastService
     {

@@ -15,4 +15,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.15" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\StaffPortal.Common\StaffPortal.Common.csproj" />
+    <ProjectReference Include="..\StaffPortal.DataAccess\StaffPortal.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

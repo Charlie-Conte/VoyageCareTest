@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using System;
 
-namespace StaffPortal.Data.Migrations
+namespace StaffPortal.DataAccess.Auth.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {

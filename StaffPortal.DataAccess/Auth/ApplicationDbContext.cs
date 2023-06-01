@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace StaffPortal.Data
+namespace StaffPortal.DataAccess.Auth
 {
     public class ApplicationDbContext : IdentityDbContext
     {
