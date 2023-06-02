@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using StaffPortal.Areas.Identity;
+using MudBlazor.Services;
 using StaffPortal.DataAccess.Auth;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace StaffPortal
 {
@@ -12,20 +13,23 @@ namespace StaffPortal
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
+
             // Add services to the container.
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                                   throw new InvalidOperationException(
+                                       "Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
 
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-
-
-            builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             builder.Services.AddSingleton<WeatherForecastService>();
+            builder.Services.AddMudServices();
 
             var app = builder.Build();
 
