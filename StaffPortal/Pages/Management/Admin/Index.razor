@@ -1,0 +1,59 @@
+﻿@page "/management/admin/index"
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using MudBlazor.Extensions
+@inject IDialogService DialogService
+@inject UserManager<IdentityUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudText Typo="Typo.h3">Administration</MudText>
+
+<AuthorizeView>
+    <Authorized Context="auth">
+        @if (auth.User.IsInRole(ADMINISTRATION_ROLE))
+        {
+            <MudText Typo="Typo.subtitle2">You are in @ADMINISTRATION_ROLE </MudText>
+
+            <MudTable Items="@ColUsers" FixedHeader="true" Hover="true" SortLabel="Sort By">
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel SortBy="new Func<IdentityUser, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<IdentityUser, object>(x=>x.UserName)">UserName</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<IdentityUser, object>(x=>x.Email)">Email</MudTableSortLabel></MudTh>
+                    <MudTh>PasswordHash</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                
+                <RowTemplate>
+                    <MudTd DataLabel="Id">@context.Id</MudTd>
+                    <MudTd DataLabel="UserName">@context.UserName</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="PasswordHash">@context.PasswordHash</MudTd>
+                    <MudTd DataLabel="UserControls">
+                        <MudButton OnClick="@(() => OpenDialog(@context))" Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
+                </PagerContent>
+            </MudTable>
+
+
+        }
+        else
+        {
+            <MudText Typo="Typo.subtitle2">You're not signed in as a user in @ADMINISTRATION_ROLE.</MudText>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <MudText Typo="Typo.subtitle2">You're not logged in.</MudText>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    private void OpenDialog(IdentityUser user)
+    {
+        DialogService.Show<DialogEditUser>("Editing " + user.UserName,parameters: new DialogParameters{["User"]=user});
+    }
+}

@@ -1,11 +1,18 @@
 ﻿@page
-@model RegisterModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using StaffPortal.Pages.Account
+
 @{
     ViewData["Title"] = "Register";
 }
 
 <h1>@ViewData["Title"]</h1>
 
+<base href="~/" />
+<component type="typeof(UserRegister)" render-mode="Server" />
+<script src="_framework/blazor.server.js"></script>
+
+@*
 <div class="row">
     <div class="col-md-4">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
@@ -64,4 +71,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-}
+}*@

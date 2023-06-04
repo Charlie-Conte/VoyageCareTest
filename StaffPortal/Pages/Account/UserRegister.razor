@@ -1,0 +1,35 @@
+﻿@page "/account/userRegister"
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<IdentityUser> SignInManager
+
+
+
+<MudCard>
+	<MudForm Model="@userModel" @ref="@form" Validation="@(userModelValidator.ValidateValue)" ValidationDelay="0">
+		<MudCardContent>
+			<MudTextField @bind-Value="userModel.UserName"
+						  For="@(() => userModel.UserName)"
+						  Immediate="true"
+						  Label="UserName" />
+
+            <MudTextField @bind-Value="userModel.Email"
+                          For="@(() => userModel.Email)"
+                          Immediate="true"
+                          Label="Email" />
+
+            <MudTextField @bind-Value="userModel.EmailCopy"
+                          For="@(() => userModel.EmailCopy)"
+                          Immediate="true"
+                          Label="Confirm Email" />
+
+			<MudTextField @bind-Value="userModel.PasswordHash"
+						  For="@(() => userModel.PasswordHash)"
+						  Immediate="true"
+						  Label="Password" />
+        </MudCardContent>
+    </MudForm>
+	<MudCardActions>
+		<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="@(async () => await Submit())">Register</MudButton>
+	</MudCardActions>
+</MudCard>
