@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿#nullable disable
+using System.Text;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -21,17 +22,16 @@ namespace StaffPortal.Pages.Account
         [Inject] private IEmailSender EmailSender { get; set; }
         [Inject] private NavigationManager NavigationManager { get; set; }
 
+        private UserModelFluentValidator _userModelValidator;
 
         protected override Task OnInitializedAsync()
         {
-            userModelValidator = new UserModelFluentValidator(UserManager);
+            _userModelValidator = new UserModelFluentValidator(UserManager);
             return Task.CompletedTask;
         }
 
-        public MudForm form;
+        public MudForm Form;
         public UserModel userModel = new UserModel();
-
-        private UserModelFluentValidator userModelValidator;
 
 
         public class UserModel : IdentityUser
@@ -51,19 +51,27 @@ namespace StaffPortal.Pages.Account
                                                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
-
-
         private async Task Submit()
         {
-            await form.Validate();
+            //NavigationManager.NavigateTo("/Identity/Account/Login", true);
+            await Form.Validate();
 
-            if (form.IsValid)
+            if (Form.IsValid)
             {
-                await RegisterAccount();
+                var user = await RegisterAccount();
+
+                if (user != null)
+                {
+                    SignInManager.SignInAsync(user, isPersistent: false);
+                    Thread.Sleep(2000);
+                    //NavigationManager.NavigateTo("/Accounts/Login", true);
+                }
+                NavigationManager.NavigateTo("/", true);
+
             }
         }
 
-        public async Task RegisterAccount()
+        public async Task<IdentityUser> RegisterAccount()
         {
             var returnUrl = NavigationManager.Uri;
             var user = CreateUser();
@@ -111,12 +119,15 @@ namespace StaffPortal.Pages.Account
                 }
                 else
                 {
-                    await SignInManager.SignInAsync(user, isPersistent: false);
-                    NavigationManager.NavigateTo(returnUrl);
+                    //await SignInManager.SignInAsync(user, isPersistent: false);
+                    //NavigationManager.NavigateTo("/", true);
                 }
+
+                return user;
             }
 
-            NavigationManager.NavigateTo(returnUrl);
+            return null;
+            //NavigationManager.NavigateTo(returnUrl, true);
         }
 
         public class UserModelFluentValidator : AbstractValidator<UserModel>
@@ -131,7 +142,8 @@ namespace StaffPortal.Pages.Account
                     .Cascade(CascadeMode.Stop)
                     .NotEmpty()
                     .EmailAddress()
-                    .MustAsync(async (value, cancellationToken) => await userManager.FindByEmailAsync(value) == null);
+                    .MustAsync(async (value, cancellationToken) => await userManager.FindByEmailAsync(value) == null)
+                        .WithMessage("Email address must be unique and not assigned to another account");
 
                 RuleFor(x => x.EmailCopy)
                     .NotEmpty()
@@ -144,8 +156,11 @@ namespace StaffPortal.Pages.Account
                     .Matches("[A-Z]").WithMessage("Password must contain one or more capital letters.")
                     .Matches("[a-z]").WithMessage("Password must contain one or more lowercase letters.")
                     .Matches(@"\d").WithMessage("Password must contain one or more digits.")
-                    .Matches(@"[][""!@$%^&*(){}:;<>,.?/+_=|'~\\-]").WithMessage("Password must contain one or more special characters.")
-                    .Matches("^[^£# “”]*$").WithMessage("Password must not contain the following characters £ # “” or spaces.");
+                    .Matches("^[^£# “”]*$")
+                        .WithMessage("Password must not contain the following characters £ # “” or spaces.")
+                    .Matches(@"[][""!@$%^&*(){}:;<>,.?/+_=|'~\\-]")
+                        .WithMessage("Password must contain one or more special characters.");
+
 
             }
 

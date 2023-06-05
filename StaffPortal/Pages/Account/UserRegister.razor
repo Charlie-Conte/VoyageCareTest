@@ -1,12 +1,13 @@
 ﻿@page "/account/userRegister"
 @using Microsoft.AspNetCore.Identity
+@using StaffPortal.Logic
 @inject UserManager<IdentityUser> UserManager
-@inject SignInManager<IdentityUser> SignInManager
+@inject VoyageCareSignInManager<IdentityUser> SignInManager
 
 
 
 <MudCard>
-	<MudForm Model="@userModel" @ref="@form" Validation="@(userModelValidator.ValidateValue)" ValidationDelay="0">
+	<MudForm Model="@userModel" @ref="@Form" Validation="@(_userModelValidator.ValidateValue)" ValidationDelay="0">
 		<MudCardContent>
 			<MudTextField @bind-Value="userModel.UserName"
 						  For="@(() => userModel.UserName)"

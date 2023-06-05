@@ -62,7 +62,7 @@ namespace StaffPortal
 
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddScoped<SignInManager<IdentityUser>, VoyageCareSignInManager<IdentityUser>>();
+            builder.Services.AddScoped<VoyageCareSignInManager<IdentityUser>>();
             //builder.Services.AddScoped<NavigationManager>();
             builder.Services.AddSingleton<WeatherForecastService>();
             builder.Services.AddMudServices();
