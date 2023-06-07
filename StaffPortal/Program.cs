@@ -28,7 +28,7 @@ namespace StaffPortal
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             GlobalHelper.CoreConnectionString = connectionString;
-            DapperExtensions.DapperExtensions.DefaultMapper = typeof(PluralizedAutoClassMapper<>);
+            //DapperExtensions.DapperExtensions.DefaultMapper = typeof(PluralizedAutoClassMapper<>);
             //builder.Services.AddIdentity<IdentityUser, IdentityRole>(setupAction: options =>  {
             //        options.SignIn.RequireConfirmedAccount = false;
             //        options.User.RequireUniqueEmail = true;
@@ -66,7 +66,9 @@ namespace StaffPortal
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
             builder.Services.AddScoped<VoyageCareSignInManager<IdentityUser>>();
-            //builder.Services.AddScoped<NavigationManager>();
+
+            builder.Services.AddScoped<ILogInAccountManager<IdentityUser>, AspAccountManager>();
+                ;
             builder.Services.AddSingleton<WeatherForecastService>();
             builder.Services.AddMudServices();
 

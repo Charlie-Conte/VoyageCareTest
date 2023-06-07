@@ -1,8 +1,9 @@
 ﻿#nullable disable
+using DapperExtensions.Mapper;
 
 namespace StaffPortal.DataAccess.Core.Models
-{
-    public class UserDetails
+{    
+    public class UserDetail
     {
         public Guid Id { get; set; }
         public string Forename { get; set; }
@@ -10,5 +11,13 @@ namespace StaffPortal.DataAccess.Core.Models
         public DateTime DateOfBirth { get; set; }
         public string JobTitle { get; set; }
         public decimal AnnualSalary { get; set; }
+    }
+    public sealed class UserDetailMapper : AutoClassMapper<UserDetail>
+    {
+        public UserDetailMapper() : base()
+        {
+            Schema("Staff");
+            TableName = "UserDetails";
+        }
     }
 }

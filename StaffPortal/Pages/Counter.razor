@@ -4,6 +4,7 @@
 @using StaffPortal.Logic
 @using System.Data
 @using DapperExtensions
+@using StaffPortal.DataAccess.Core.Models
 
 <PageTitle>Counter</PageTitle>
 
@@ -26,12 +27,19 @@
         GetAllUsers();
     }
 
-    private static List<AspNetUsers> GetAllUsers()
+    private static List<AspNetUser> GetAllUsers()
     {
         using (IDbConnection db = new SqlConnection(GlobalHelper.CoreConnectionString))
         {
             db.Open();
-            List<AspNetUsers> users = db.GetList<AspNetUsers>().ToList();
+            List<AspNetUser> users = db.GetList<AspNetUser>().ToList();
+
+            db.GetList<UserDetail>().ToList();
+            db.GetList<CareHome>().ToList();
+            db.GetList<Qualification>().ToList();
+
+            var linkList = db.GetList<CareHome_Staff>().ToList();
+
             db.Close();
 
             return users;
