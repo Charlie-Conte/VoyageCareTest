@@ -2,11 +2,11 @@
 
 <MudCard>
 	<MudForm Model="@UserModel" @ref="@Form" Validation="@(_userModelValidator.ValidateValue)" ValidationDelay="0">
-		<MudCardContent>
-			<MudTextField @bind-Value="UserModel.UserName"
-						  For="@(() => UserModel.UserName)"
-						  Immediate="true"
-						  Label="UserName" />
+        <MudCardContent>
+            <MudTextField @bind-Value="UserModel.UserName"
+                          For="@(() => UserModel.UserName)"
+                          Immediate="true"
+                          Label="UserName" />
 
             <MudTextField @bind-Value="UserModel.Email"
                           For="@(() => UserModel.Email)"
@@ -18,10 +18,13 @@
                           Immediate="true"
                           Label="Confirm Email" />
 
-			<MudTextField @bind-Value="UserModel.PasswordHash"
-						  For="@(() => UserModel.PasswordHash)"
-						  Immediate="true"
-						  Label="Password" />
+            <MudTextField @bind-Value="UserModel.PasswordHash"
+                          For="@(() => UserModel.PasswordHash)"
+                          Immediate="true"
+                          Label="Password" />
+        </MudCardContent>
+        <MudCardContent>
+
         </MudCardContent>
     </MudForm>
 	<MudCardActions>

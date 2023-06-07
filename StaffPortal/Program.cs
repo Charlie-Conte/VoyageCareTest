@@ -1,3 +1,4 @@
+using DapperExtensions.Mapper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.Identity;
@@ -26,6 +27,8 @@ namespace StaffPortal
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+            GlobalHelper.CoreConnectionString = connectionString;
+            DapperExtensions.DapperExtensions.DefaultMapper = typeof(PluralizedAutoClassMapper<>);
             //builder.Services.AddIdentity<IdentityUser, IdentityRole>(setupAction: options =>  {
             //        options.SignIn.RequireConfirmedAccount = false;
             //        options.User.RequireUniqueEmail = true;

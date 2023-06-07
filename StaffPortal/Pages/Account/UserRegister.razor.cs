@@ -52,7 +52,7 @@ namespace StaffPortal.Pages.Account
 
                 if (user != null)
                 {
-                    NavigationManager.NavigateTo("/Accounts/Login", true);
+                    NavigationManager.NavigateTo("/Identity/Account/Login", true);
                 }
             }
         }
