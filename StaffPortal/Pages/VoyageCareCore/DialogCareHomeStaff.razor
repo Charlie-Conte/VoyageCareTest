@@ -1,0 +1,141 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using StaffPortal.DataAccess.Core.Models
+@using StaffPortal.Services
+@inject UserManager<IdentityUser> _UserManager
+@inject LocationService LocationService
+
+
+<MudDialog Class="">
+    <DialogContent>
+        <MudItem xs="12">
+            <MudText Typo="Typo.h5">Staff at this home</MudText>
+
+            <MudTable Items="@StaffAtHome" FixedHeader="true" Hover="true" SortLabel="Sort By">
+                <HeaderContent>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<IdentityUser, object>(x => x.Id)">Id</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<IdentityUser, object>(x => x.UserName)">UserName</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<IdentityUser, object>(x => x.Email)">Email</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+
+                <RowTemplate>
+                    <MudTd DataLabel="Id">@context.Id</MudTd>
+                    <MudTd DataLabel="UserName">@context.UserName</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="UserControls">
+                        <MudButton OnClick="@(() => RemoveUser(@context))" MudPallet Variant="Variant.Text" Color="Color.Error">Remove</MudButton>
+
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] { 50, 100 }"/>
+                </PagerContent>
+            </MudTable>
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.h5">Other staff</MudText>
+
+            <MudTable Items="@StaffNotAtHome" FixedHeader="true" Hover="true" SortLabel="Sort By">
+                <HeaderContent>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<IdentityUser, object>(x => x.Id)">Id</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<IdentityUser, object>(x => x.UserName)">UserName</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<IdentityUser, object>(x => x.Email)">Email</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+
+                <RowTemplate>
+                    <MudTd DataLabel="Id">@context.Id</MudTd>
+                    <MudTd DataLabel="UserName">@context.UserName</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="UserControls">
+                        <MudButton OnClick="@(() => AddUser(@context))" MudPallet Variant="Variant.Text" Color="Color.Success" >Add</MudButton>
+            
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] { 50, 100 }"/>
+                </PagerContent>
+            </MudTable>
+        </MudItem>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Close">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [Parameter] public Guid ThisHomeId { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = null!;
+
+
+    List<IdentityUser> StaffAtHome = new List<IdentityUser>();
+    List<IdentityUser> StaffNotAtHome = new List<IdentityUser>();
+    List<CareHome_Staff> careHomeStaff = new List<CareHome_Staff>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        GetUsers();
+    }
+
+    public void GetUsers()
+    {
+    // clear any error messages
+
+    // Collection to hold users
+        StaffAtHome = new List<IdentityUser>();
+        StaffNotAtHome = new List<IdentityUser>();
+
+    // get users from _UserManager
+        var identityUsers = _UserManager.Users.ToList();
+        var user = identityUsers.Select(x => new IdentityUser
+        {
+            Id = x.Id,
+            UserName = x.UserName,
+            Email = x.Email
+        });
+
+        careHomeStaff = LocationService.GetAllCareHome_Staffs();
+
+        var homeStaffIds = careHomeStaff.FindAll(c => c.CareHomeId == ThisHomeId)
+            .Select(u => u.UserId.ToString());
+
+
+        var whereResult = identityUsers
+            .Where(u => !homeStaffIds.Contains(u.Id));
+        var notHomeStaffIds = whereResult
+            .Select(u => u.Id.ToString());
+
+        StaffAtHome.AddRange(identityUsers.Where(u => homeStaffIds.Contains(u.Id)));
+        StaffNotAtHome.AddRange(identityUsers.Where(u => notHomeStaffIds.Contains(u.Id)));
+    }
+
+    public void AddUser(IdentityUser user)
+    {
+        LocationService.AddCareHome_Staffs(ThisHomeId, user.Id);
+        GetUsers();
+    }   
+    
+    public void RemoveUser(IdentityUser user)
+    {
+
+        LocationService.RemoveCareHome_Staffs(careHomeStaff.First(s => s.UserId == user.Id));
+        GetUsers();
+    }
+
+    void Close() => MudDialog.Close(DialogResult.Ok(true));
+
+}

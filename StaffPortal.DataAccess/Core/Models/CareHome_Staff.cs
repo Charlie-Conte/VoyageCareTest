@@ -1,5 +1,4 @@
-﻿using StaffPortal.DataAccess.Auth;
-using DapperExtensions.Mapper;
+﻿using DapperExtensions.Mapper;
 
 namespace StaffPortal.DataAccess.Core.Models
 {
@@ -7,7 +6,7 @@ namespace StaffPortal.DataAccess.Core.Models
     {
         public Guid Id { get; set; }
         public Guid CareHomeId { get; set; }
-        public Guid UserId { get; set; }
+        public string UserId { get; set; } = null!;
     }
     public sealed class CareHome_StaffMapper : AutoClassMapper<CareHome_Staff>
     {

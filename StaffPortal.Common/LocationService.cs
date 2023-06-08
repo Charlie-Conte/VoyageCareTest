@@ -59,5 +59,20 @@ namespace StaffPortal.Services
             var result = db.GetList<CareHome_Staff>().ToList();
             return result;
         }
+
+        public void AddCareHome_Staffs(Guid homeId, string userId)
+        {
+            var model = new CareHome_Staff()
+            {
+                CareHomeId = homeId,
+                UserId = userId
+            };
+            db.Insert(model);
+        }        
+        
+        public void RemoveCareHome_Staffs(CareHome_Staff careHome_Staff)
+        {
+            db.Delete(careHome_Staff);
+        }
     }
 }
