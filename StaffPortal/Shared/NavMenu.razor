@@ -8,6 +8,9 @@
         <Authorized Context="auth">
             <MudNavLink Href="UserProfile" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">
                 User Profile
+            </MudNavLink>            
+            <MudNavLink Href="qualifications" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PictureAsPdf">
+                Qualifications
             </MudNavLink>
             <MudNavLink Href="/Identity/Account/Manage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PersonOutline">
                 User Login Settings
@@ -15,6 +18,7 @@
 
             @if (auth.User.IsInRole(ADMINISTRATION_ROLE))
             {
+                <MudDivider/>
 @*                <MudNavLink Href="claims-principle-data" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Layers">
                     GetClaimsPrincipalData
                 </MudNavLink>*@

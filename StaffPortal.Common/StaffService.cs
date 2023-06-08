@@ -56,5 +56,29 @@ namespace StaffPortal.Services
             
             return result;
         }
+
+        public Qualification GetQualificationById(Guid qualificationId)
+        {
+            var result = db.Get<Qualification>(qualificationId);
+
+            return result;
+        }
+
+        public void CreateQualification(Qualification qualification)
+        {
+            db.Insert(qualification);
+        }
+
+        public bool UpdateQualification(Qualification qualification)
+        {
+            var result = db.Update(qualification);
+            
+            return result;
+        }
+
+        public void DeleteQualification(Qualification qualification)
+        {
+            db.Delete(qualification);
+        }
     }
 }

@@ -1,0 +1,148 @@
+﻿@page "/qualifications"
+@using StaffPortal.DataAccess.Core.Models
+@using StaffPortal.Services
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Identity
+@inject StaffService StaffService
+@inject UserManager<IdentityUser> _UserManager
+@inject ISnackbar snackBar
+
+<MudText Typo="Typo.h3">Qualifications</MudText>
+
+<MudSpacer/>
+
+
+<AuthorizeView>
+    <Authorized Context="auth">
+        <MudCard Elevation="25">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Add / Edit Qualifications</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudTextField @bind-Value="workingQualification.Name" Label="Name" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+                <MudTextField @bind-Value="workingQualification.QualificationType" Label="QualificationType" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+                <MudTextField @bind-Value="workingQualification.ReceivedGrade" Label="Received Grade" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+                <MudDatePicker Label="Received Date" @bind-Date="defaultDate"/>
+                <MudDatePicker Label="Expiry Date" @bind-Date="workingQualification.ExpiryDate"/>
+                <br/>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="Save">Save Qualification</MudButton>
+            </MudCardContent>
+        </MudCard>
+        <br/>
+        <MudTable Elevation="25" Items="GetQualifications()" Filter="new Func<Qualification, bool>(Search)" @bind-customer="workingQualification">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Care Qualifications</MudText>
+                <MudSpacer/>
+                <MudTextField @bind-Value="searchString" Placeholder="Search for Qualifications..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Id</MudTh>
+                <MudTh>Name</MudTh>
+                <MudTh>QualificationType</MudTh>
+                <MudTh>Received Grade</MudTh>
+                <MudTh>Received Date</MudTh>
+                <MudTh>Expiry Date</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Id">@context.Id</MudTd>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="ReceivedGrade">@context.ReceivedGrade</MudTd>
+                <MudTd DataLabel="QualificationType">@context.QualificationType</MudTd>
+                <MudTd DataLabel="ReceivedDate">@context.ReceivedDate</MudTd>
+                <MudTd DataLabel="ExpiryDate">@context.ExpiryDate</MudTd>
+
+                <MudTd DataLabel="">
+                    <MudFab @onclick="@(() => Edit(@context.Id))" Color="Color.Primary" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" IconSize="Size.Small"/>
+                    <MudFab @onclick="@(() => Delete(@context.Id))" Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" IconSize="Size.Small"/>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </Authorized>
+    <NotAuthorized>
+        <MudText Typo="Typo.subtitle2">You're not logged in.</MudText>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+{
+    string ADMINISTRATION_ROLE = "Administrators";
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    System.Security.Claims.ClaimsPrincipal CurrentUserPrinciple;
+
+
+    DateTime? defaultDate;
+
+    private string searchString = "";
+    private Qualification workingQualification = new Qualification();
+    private List<Qualification> _qualifications = new List<Qualification>();
+    private IdentityUser currentUser = new IdentityUser();
+
+    protected override async Task OnInitializedAsync()
+    {
+        defaultDate = new DateTime(2000, 01, 01);
+
+        CurrentUserPrinciple = (await authenticationStateTask).User;
+
+        currentUser = await _UserManager.FindByNameAsync(CurrentUserPrinciple.Identity?.Name);
+
+        GetQualifications();
+    }
+
+    private List<Qualification> GetQualifications()
+    {
+        _qualifications = StaffService.GetAllQualifications();
+        return _qualifications;
+    }
+
+    private bool Search(Qualification Qualification)
+    {
+        if (string.IsNullOrWhiteSpace(searchString)) return true;
+        var canIdParse = Guid.TryParse(searchString, out var searchId);
+
+        if (Qualification.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+            || Qualification.QualificationType.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+            || (canIdParse && Qualification.Id.Equals(searchId)))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private void Save()
+    {
+        workingQualification.ReceivedDate = defaultDate ?? new DateTime(2000, 01, 01);
+        workingQualification.UserId = currentUser.Id;
+        var existingQualification = StaffService.GetQualificationById(workingQualification.Id);
+        if (existingQualification == null)
+        {
+            StaffService.CreateQualification(workingQualification);
+        }
+        else
+        {
+            StaffService.UpdateQualification(workingQualification);
+        }
+        workingQualification = new Qualification();
+        snackBar.Add("Qualification Saved.", Severity.Success);
+        GetQualifications();
+        defaultDate = new DateTime(2000, 01, 01);
+    }
+
+    private void Edit(Guid id)
+    {
+        workingQualification = _qualifications.FirstOrDefault(c => c.Id == id);
+    }
+
+    private void Delete(Guid id)
+    {
+        var existingQualification = StaffService.GetQualificationById(id);
+
+        StaffService.DeleteQualification(existingQualification);
+        snackBar.Add("Qualification Deleted.", Severity.Success);
+        GetQualifications();
+    }
+}
