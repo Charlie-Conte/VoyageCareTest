@@ -1,0 +1,140 @@
+﻿@page "/careHomes"
+@using Microsoft.AspNetCore.Identity;
+@using StaffPortal.DataAccess.Core.Models
+@using StaffPortal.Services
+@using Microsoft.AspNetCore.Components
+@inject IDialogService DialogService
+@inject UserManager<IdentityUser> _UserManager
+@inject LocationService LocationService
+@inject ISnackbar snackBar
+
+<MudText Typo="Typo.h3">CareHomes</MudText>
+
+<MudSpacer/>
+
+
+<AuthorizeView>
+    <Authorized Context="auth">
+        @if (auth.User.IsInRole(ADMINISTRATION_ROLE))
+        {
+            <MudCard Elevation="25">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Add / Edit Homes</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudTextField @bind-Value="careHome.Name" Label="Name" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+                    <MudTextField @bind-Value="careHome.Postcode" Label="Postcode" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+                    <MudTextField @bind-Value="careHome.AddressLine1" Label="Address Line 1" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+                    <MudTextField @bind-Value="careHome.AddressLine2" Label="Address Line 2" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+                    <MudTextField @bind-Value="careHome.AddressLine3" Label="Address Line 3" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+                    <MudTextField @bind-Value="careHome.Landline" Label="Landline" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+                    <br />
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="Save">Save Care Home</MudButton>
+                </MudCardContent>
+            </MudCard>
+            <br />
+            <MudTable Elevation="25" Items="GetCareHomes()" Filter="new Func<CareHome, bool>(Search)" @bind-customer="careHome">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Care Homes</MudText>
+                    <MudSpacer />
+                    <MudTextField @bind-Value="searchString" Placeholder="Search for CareHomes..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Postcode</MudTh>
+                    <MudTh>Address Line 1</MudTh>
+                    <MudTh>Address Line 2</MudTh>
+                    <MudTh>Address Line 3</MudTh>
+                    <MudTh>Landline</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Id">@context.Id</MudTd>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Postcode">@context.Postcode</MudTd>
+                    <MudTd DataLabel="AddressLine1">@context.AddressLine1</MudTd>
+                    <MudTd DataLabel="AddressLine2">@context.AddressLine2</MudTd>
+                    <MudTd DataLabel="AddressLine3">@context.AddressLine3</MudTd>
+                    <MudTd DataLabel="Landline">@context.Landline</MudTd>
+                    <MudTd DataLabel="">
+                        <MudFab @onclick="@(()=>Edit(@context.Id))" Color="Color.Primary" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" IconSize="Size.Small" />
+                        <MudFab @onclick="@(()=>Delete(@context.Id))" Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" IconSize="Size.Small" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+        else
+        {
+            <MudText Typo="Typo.subtitle2">You're not signed in as a user in @ADMINISTRATION_ROLE.</MudText>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <MudText Typo="Typo.subtitle2">You're not logged in.</MudText>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+{
+    string ADMINISTRATION_ROLE = "Administrators";
+
+
+
+    private string searchString = "";
+    private CareHome careHome = new CareHome();
+    private List<CareHome> careHomes = new List<CareHome>();
+    protected override async Task OnInitializedAsync()
+    {
+        GetCareHomes();
+    }
+    private List<CareHome> GetCareHomes()
+    {
+        careHomes = LocationService.GetAllCareHomes();
+        return careHomes;
+    }
+    private bool Search(CareHome home)
+    {
+        if (string.IsNullOrWhiteSpace(searchString)) return true;
+        var canIdParse = Guid.TryParse(searchString, out var searchId);
+
+        if (home.AddressLine1.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+            || home.AddressLine2.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+            || (home.AddressLine3 != null && home.AddressLine3.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            || home.Postcode.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+            || (canIdParse && home.Id.Equals(searchId)))
+        {
+            return true;
+        }
+        return false;
+    }
+    private void Save()
+    {
+        var existingHome = LocationService.GetCareHomeById(careHome.Id);
+        if (existingHome == null)
+        {
+            LocationService.CreateCareHome(careHome);
+        }
+        else
+        {
+            LocationService.UpdateCareHome(careHome);
+        }
+        careHome = new CareHome();
+        snackBar.Add("Home Saved.", Severity.Success);
+        GetCareHomes();
+    }
+    private void Edit(Guid id)
+    {
+        careHome = careHomes.FirstOrDefault(c => c.Id == id);
+    }
+    private void Delete(Guid id)
+    {
+        var existingHome = LocationService.GetCareHomeById(id);
+
+        LocationService.DeleteCareHome(existingHome);
+        snackBar.Add("Home Deleted.", Severity.Success);
+        GetCareHomes();
+    }
+
+}

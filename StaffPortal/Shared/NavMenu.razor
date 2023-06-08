@@ -2,8 +2,8 @@
 
 <MudNavMenu>
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
-    <MudNavLink Href="fetchdata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Fetch data</MudNavLink>
+@*    <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
+    <MudNavLink Href="fetchdata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Fetch data</MudNavLink>*@
     <AuthorizeView>
         <Authorized Context="auth">
             <MudNavLink Href="UserProfile" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">
@@ -15,11 +15,15 @@
 
             @if (auth.User.IsInRole(ADMINISTRATION_ROLE))
             {
-                <MudNavLink Href="claims-principle-data" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Layers">
+@*                <MudNavLink Href="claims-principle-data" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Layers">
                     GetClaimsPrincipalData
-                </MudNavLink>
+                </MudNavLink>*@
                 <MudNavLink Href="management/admin/index" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Key">
                     Administration
+                </MudNavLink>
+
+                <MudNavLink Href="careHomes" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Home">
+                    Care Homes
                 </MudNavLink>
             }
         </Authorized>

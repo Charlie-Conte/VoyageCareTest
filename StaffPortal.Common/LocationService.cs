@@ -6,40 +6,57 @@ using StaffPortal.DataAccess.Core.Models;
 
 namespace StaffPortal.Services
 {
-    public class LocationService
+    public class LocationService : IDisposable
     {
+        private IDbConnection db;
+        public LocationService()
+        {
+            db = new SqlConnection(ConnectionString);
+
+            db.Open();
+        }
+
+        public void Dispose()
+        {
+            db.Close();
+        }
+
         private static readonly string ConnectionString = "Server=localhost;Database=VoyageCare;Trusted_Connection=True;MultipleActiveResultSets=true";
-        
+
         public List<CareHome> GetAllCareHomes()
         {
-            using IDbConnection db = new SqlConnection(ConnectionString);
-            db.Open();
-            //List<AspNetUser> users = db.GetList<AspNetUser>().ToList();
-
-            //db.GetList<UserDetail>().ToList();
             var result = db.GetList<CareHome>().ToList();
+            return result;
+        }
+        public void CreateCareHome(CareHome careHome)
+        {
+            db.Insert(careHome);
+        }
 
-            db.Close();
+        public CareHome GetCareHomeById(Guid id)
+        {
+            var result = db.Get<CareHome>(id);
 
             return result;
-            //db.GetList<Qualification>().ToList();
-
-            //var linkList = db.GetList<CareHome_Staff>().ToList();
-
-
-            //return users;
-        }
+        }          
         
+        public bool DeleteCareHome(CareHome careHome)
+        {
+            var result = db.Delete<CareHome>(careHome);
+
+            return result;
+        }   
+
+        public bool UpdateCareHome(CareHome careHome)
+        {
+            var result = db.Update(careHome);
+            
+            return result;
+        }
+
         public List<CareHome_Staff> GetAllCareHome_Staffs()
         {
-            using IDbConnection db = new SqlConnection(ConnectionString);
-
-            db.Open();
-
             var result = db.GetList<CareHome_Staff>().ToList();
-
-            db.Close();
-
             return result;
         }
     }

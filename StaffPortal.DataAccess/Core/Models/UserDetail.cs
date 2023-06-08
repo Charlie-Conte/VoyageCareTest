@@ -5,7 +5,7 @@ namespace StaffPortal.DataAccess.Core.Models
 {    
     public class UserDetail
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public string Forename { get; set; }
         public string Surname { get; set; }
         public DateTime DateOfBirth { get; set; }

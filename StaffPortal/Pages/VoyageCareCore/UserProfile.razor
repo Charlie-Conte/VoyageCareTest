@@ -9,29 +9,47 @@
 <AuthorizeView>
     <Authorized Context="auth">
         <MudText Typo="Typo.h3">UserProfile</MudText>
-        <MudText Typo="Typo.h4">Hello @auth.User.Identity?.Name</MudText>
-        <MudSpacer />
-    @if (_render)
-    {
-        <MudButton OnClick="@(OpenEditDialog)" MudPallet Variant="Variant.Filled" Color="Color.Info" >Edit User Login</MudButton>
+        @if (_render)
+        {
+            <MudGrid>
+                <MudItem xs="10">
+                    <MudText Typo="Typo.h4">Hello @auth.User.Identity?.Name</MudText>
+                </MudItem>
+                <MudItem xs="2">
+                    <MudButton OnClick="@(OpenEditDialog)" MudPallet Variant="Variant.Filled" Color="Color.Info">Edit User Login</MudButton>
+                </MudItem>
+            </MudGrid>
 
-    }
+            <DynamicComponent Type="typeof(UserDetails)" Parameters="@UserDetailsParams" />
+        }
+        
+        
+
     </Authorized>
 </AuthorizeView>
 
 @code {
 
-    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     IdentityUser currentIdentityUser;
-        
+
+    Dictionary<string, object> UserDetailsParams = new Dictionary<string, object>();
+
     private bool _render;
 
     protected override async Task OnInitializedAsync()
     {
         CurrentUser = (await authenticationStateTask).User;
-        currentIdentityUser = await UserManager.FindByNameAsync(CurrentUser.Identity.Name);
+        var claims = CurrentUser.Claims.ToList();
+        var userId = claims
+            .Find(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+        currentIdentityUser = await UserManager.FindByIdAsync(userId);
         currentIdentityUser.PasswordHash = "*****";
+
+        UserDetailsParams.Add("UserId", currentIdentityUser.Id);
 
         _render = true;
     }
@@ -39,7 +57,7 @@
     private void OpenEditDialog()
     {
         var dialogParameters = new DialogParameters();
-        dialogParameters.Add("User" , currentIdentityUser );
+        dialogParameters.Add("User", currentIdentityUser);
         dialogParameters.Add("DisableForm", false);
         DialogService.Show<DialogEditUser>("Editing " + currentIdentityUser.UserName,
             parameters: dialogParameters,

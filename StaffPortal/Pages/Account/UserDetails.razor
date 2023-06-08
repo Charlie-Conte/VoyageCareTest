@@ -1,7 +1,91 @@
 ﻿@page "/account/userDetails"
+@using Microsoft.AspNetCore.Components
+@using StaffPortal.Logic.Validators
+@using StaffPortal.Services
+@using System.Globalization
+@using StaffPortal.DataAccess.Core.Models
 
-<h3>UserDetails</h3>
+@inject StaffService StaffService
+
+<MudCard>
+    <MudForm Model="@UserDetailModel" @ref="@Form" Validation="@(_userDetailValidator.ValidateValue)" ValidationDelay="0">
+        <MudCardContent>
+            <MudTextField @bind-Value="UserDetailModel.Forename"
+                          For="@(() => UserDetailModel.Forename)"
+                          Immediate="true"
+                          Label="Forename" />
+
+            <MudTextField @bind-Value="UserDetailModel.Surname"
+                          For="@(() => UserDetailModel.Surname)"
+                          Immediate="true"
+                          Label="Surname" />
+
+            <MudNumericField Immediate="false" Label="Annual Salary" Format="N2" Culture="@_en"
+                             T="decimal" @bind-Value="UserDetailModel.AnnualSalary" 
+                             HelperText="@_helpValueEn.ToString()" />
+
+            <MudTextField @bind-Value="UserDetailModel.JobTitle"
+                          For="@(() => UserDetailModel.JobTitle)"
+                          Immediate="true"
+                          Label="Job Title" />
+
+            <MudDatePicker Label="Date of Birth" @bind-Date="dateOfBirth" />
+        </MudCardContent>
+        <MudCardContent>
+
+        </MudCardContent>
+    </MudForm>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="@(async () => await Submit())">Save</MudButton>
+    </MudCardActions>
+</MudCard>
 
 @code {
+    [Inject] private NavigationManager NavigationManager { get; set; }
 
+    public CultureInfo _en = CultureInfo.GetCultureInfo("en-UK");
+    public decimal _helpValueEn = (decimal)1234.56;
+
+    private EditUserDetailsFluentValidator _userDetailValidator;
+    public MudForm Form;
+    public UserDetail UserDetailModel = new UserDetail();
+    UserDetail existingDetail;
+
+    [Parameter] public string UserId { get; set; }
+    DateTime? dateOfBirth = new DateTime(2000,01,01);
+
+    protected override Task OnInitializedAsync()
+    {
+        _userDetailValidator = new EditUserDetailsFluentValidator(UserId);
+        UserDetailModel.Id = UserId;
+        existingDetail = StaffService.GetStaffById(UserDetailModel.Id);
+        if (existingDetail != null)
+        {
+            UserDetailModel = existingDetail;
+            dateOfBirth = existingDetail.DateOfBirth;
+        }
+        return Task.CompletedTask;
+    }
+
+    private async Task Submit()
+    {
+        await Form.Validate();
+
+        if (Form.IsValid)
+        {
+            UserDetailModel.DateOfBirth = dateOfBirth ?? new DateTime(2000, 01, 01);
+
+            
+
+            if (existingDetail == null)
+            {
+                StaffService.CreateStaff(UserDetailModel);
+            }
+            else
+            {
+                StaffService.UpdateStaff(UserDetailModel);
+            }
+            NavigationManager.NavigateTo(NavigationManager.Uri, true);
+        }
+    }
 }

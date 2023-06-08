@@ -2,9 +2,9 @@
 
 namespace StaffPortal.Models
 {
-    public class UserDetailsModel : IdentityUser
+    public class UserIdentityModel : IdentityUser
     {
-        public UserDetailsModel(string emailCopy)
+        public UserIdentityModel(string emailCopy)
         {
             EmailCopy = emailCopy;
         }
