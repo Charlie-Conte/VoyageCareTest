@@ -5,12 +5,14 @@ using StaffPortal.Models;
 
 namespace StaffPortal.Logic.Validators
 {
-    public class UserModelFluentValidator : AbstractValidator<UserModel>
+    public class NewUserModelFluentValidator : AbstractValidator<UserModel>
     {
-        public UserModelFluentValidator(UserManager<IdentityUser> userManager)
+        public NewUserModelFluentValidator(UserManager<IdentityUser> userManager)
         {
             RuleFor(x => x.UserName)
                 .NotEmpty()
+                .MustAsync(async (value, cancellationToken) => await userManager.FindByNameAsync(value) == null)
+                .WithMessage("UserName must be unique and not assigned to another account")
                 .Length(1, 100);
 
             RuleFor(x => x.Email)

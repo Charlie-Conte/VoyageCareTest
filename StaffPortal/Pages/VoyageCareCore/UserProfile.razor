@@ -1,0 +1,49 @@
+﻿@page "/UserProfile"
+@using StaffPortal.Pages.Account
+@using Microsoft.AspNetCore.Identity
+@using StaffPortal.Pages.Management.Admin
+@inject UserManager<IdentityUser> UserManager
+@inject IDialogService DialogService
+
+
+<AuthorizeView>
+    <Authorized Context="auth">
+        <MudText Typo="Typo.h3">UserProfile</MudText>
+        <MudText Typo="Typo.h4">Hello @auth.User.Identity?.Name</MudText>
+        <MudSpacer />
+    @if (_render)
+    {
+        <MudButton OnClick="@(OpenEditDialog)" MudPallet Variant="Variant.Filled" Color="Color.Info" >Edit User Login</MudButton>
+
+    }
+    </Authorized>
+</AuthorizeView>
+
+@code {
+
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+    IdentityUser currentIdentityUser;
+        
+    private bool _render;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CurrentUser = (await authenticationStateTask).User;
+        currentIdentityUser = await UserManager.FindByNameAsync(CurrentUser.Identity.Name);
+        currentIdentityUser.PasswordHash = "*****";
+
+        _render = true;
+    }
+
+    private void OpenEditDialog()
+    {
+        var dialogParameters = new DialogParameters();
+        dialogParameters.Add("User" , currentIdentityUser );
+        dialogParameters.Add("DisableForm", false);
+        DialogService.Show<DialogEditUser>("Editing " + currentIdentityUser.UserName,
+            parameters: dialogParameters,
+            options: new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+    }
+
+}

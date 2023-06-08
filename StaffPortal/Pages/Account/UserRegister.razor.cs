@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using StaffPortal.Logic;
 using StaffPortal.Logic.Validators;
 using StaffPortal.Models;
@@ -14,14 +15,14 @@ namespace StaffPortal.Pages.Account
         [Inject] private ILogInAccountManager<IdentityUser> AccountManager { get; set; }
         [Inject] private UserManager<IdentityUser> UserManager { get; set; } = null!;
 
-        private UserModelFluentValidator _userModelValidator;
+        private NewUserModelFluentValidator _newUserModelValidator;
         public MudForm Form;
         public UserModel UserModel = new UserModel();
-
+        [Parameter] public bool NoRedirect { get; set; }
 
         protected override Task OnInitializedAsync()
         {
-            _userModelValidator = new UserModelFluentValidator(UserManager);
+            _newUserModelValidator = new NewUserModelFluentValidator(UserManager);
             return Task.CompletedTask;
         }
 
@@ -31,18 +32,18 @@ namespace StaffPortal.Pages.Account
 
             if (Form.IsValid)
             {
-                var user = await RegisterAccount();
+                var user = await AccountManager.RegisterUser(UserModel);
 
                 if (user != null)
                 {
-                    NavigationManager.NavigateTo("/Identity/Account/Login", true);
+                    if (!NoRedirect)
+                    {
+                        NavigationManager.NavigateTo("/Identity/Account/Login", true);
+                    }
+
+                    NavigationManager.NavigateTo(NavigationManager.Uri, true);
                 }
             }
-        }
-
-        public async Task<IdentityUser> RegisterAccount()
-        {
-            return await AccountManager.RegisterUser(UserModel);
         }
     }
 }

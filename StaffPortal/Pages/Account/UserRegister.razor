@@ -1,7 +1,7 @@
 ﻿@page "/account/userRegister"
 
 <MudCard>
-	<MudForm Model="@UserModel" @ref="@Form" Validation="@(_userModelValidator.ValidateValue)" ValidationDelay="0">
+	<MudForm Model="@UserModel" @ref="@Form" Validation="@(_newUserModelValidator.ValidateValue)" ValidationDelay="0">
         <MudCardContent>
             <MudTextField @bind-Value="UserModel.UserName"
                           For="@(() => UserModel.UserName)"

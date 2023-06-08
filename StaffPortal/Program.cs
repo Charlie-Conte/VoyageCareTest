@@ -7,6 +7,7 @@ using MudBlazor.Services;
 using StaffPortal.DataAccess.Auth;
 using Microsoft.EntityFrameworkCore;
 using StaffPortal.Logic;
+using StaffPortal.Services;
 
 
 namespace StaffPortal
@@ -66,7 +67,8 @@ namespace StaffPortal
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
             builder.Services.AddScoped<VoyageCareSignInManager<IdentityUser>>();
-
+            builder.Services.AddSingleton<StaffService>();
+            builder.Services.AddSingleton<LocationService>();
             builder.Services.AddScoped<ILogInAccountManager<IdentityUser>, AspAccountManager>();
                 ;
             builder.Services.AddSingleton<WeatherForecastService>();

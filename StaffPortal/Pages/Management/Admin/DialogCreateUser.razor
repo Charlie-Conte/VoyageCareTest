@@ -1,0 +1,24 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using StaffPortal.Pages.Account
+
+<MudDialog Class="">
+    <DialogContent>
+        <DynamicComponent Type="typeof(UserRegister)" Parameters="@UserRegisterParams" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Close">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    Dictionary<string, object> UserRegisterParams = new Dictionary<string, object>
+    {
+        { "NoRedirect", true }
+    };
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = null!;
+    
+    void Close() => MudDialog.Close(DialogResult.Ok(true));
+}

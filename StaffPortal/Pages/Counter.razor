@@ -1,10 +1,8 @@
 ﻿@page "/counter"
-@using StaffPortal.DataAccess.Auth
-@using Microsoft.Data.SqlClient
-@using StaffPortal.Logic
-@using System.Data
-@using DapperExtensions
-@using StaffPortal.DataAccess.Core.Models
+@using StaffPortal.Services
+
+@inject StaffService StaffService;
+@inject LocationService LocationService;
 
 <PageTitle>Counter</PageTitle>
 
@@ -24,25 +22,8 @@
 
     private void Test()
     {
-        GetAllUsers();
+       var result = LocationService.GetAllCareHomes();
     }
 
-    private static List<AspNetUser> GetAllUsers()
-    {
-        using (IDbConnection db = new SqlConnection(GlobalHelper.CoreConnectionString))
-        {
-            db.Open();
-            List<AspNetUser> users = db.GetList<AspNetUser>().ToList();
 
-            db.GetList<UserDetail>().ToList();
-            db.GetList<CareHome>().ToList();
-            db.GetList<Qualification>().ToList();
-
-            var linkList = db.GetList<CareHome_Staff>().ToList();
-
-            db.Close();
-
-            return users;
-        }
-    }
 }

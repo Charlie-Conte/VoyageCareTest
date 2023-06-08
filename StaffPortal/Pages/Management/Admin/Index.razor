@@ -1,42 +1,60 @@
 ﻿@page "/management/admin/index"
-@using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Identity;
-@using MudBlazor.Extensions
 @inject IDialogService DialogService
 @inject UserManager<IdentityUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
-@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <MudText Typo="Typo.h3">Administration</MudText>
+<MudSpacer/>
+
 
 <AuthorizeView>
     <Authorized Context="auth">
         @if (auth.User.IsInRole(ADMINISTRATION_ROLE))
         {
-            <MudText Typo="Typo.subtitle2">You are in @ADMINISTRATION_ROLE </MudText>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudGrid>
+                        <MudItem xs="10">
+                            <MudText Typo="Typo.subtitle2">You are in @ADMINISTRATION_ROLE </MudText>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudButton OnClick="@(OpenCreateDialog)" Variant="Variant.Filled" Color="Color.Primary">New User</MudButton>
+                        </MudItem>
+                    </MudGrid>
 
-            <MudTable Items="@ColUsers" FixedHeader="true" Hover="true" SortLabel="Sort By">
-                <HeaderContent>
-                    <MudTh><MudTableSortLabel SortBy="new Func<IdentityUser, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<IdentityUser, object>(x=>x.UserName)">UserName</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<IdentityUser, object>(x=>x.Email)">Email</MudTableSortLabel></MudTh>
-                    <MudTh></MudTh>
-                </HeaderContent>
-                
-                <RowTemplate>
-                    <MudTd DataLabel="Id">@context.Id</MudTd>
-                    <MudTd DataLabel="UserName">@context.UserName</MudTd>
-                    <MudTd DataLabel="Email">@context.Email</MudTd>
-                    <MudTd DataLabel="UserControls">
-                        <MudButton OnClick="@(() => OpenDialog(@context))" Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
-                    </MudTd>
-                </RowTemplate>
-                <PagerContent>
-                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
-                </PagerContent>
-            </MudTable>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTable Items="@ColUsers" FixedHeader="true" Hover="true" SortLabel="Sort By">
+                        <HeaderContent>
+                            <MudTh>
+                                <MudTableSortLabel SortBy="new Func<IdentityUser, object>(x => x.Id)">Id</MudTableSortLabel>
+                            </MudTh>
+                            <MudTh>
+                                <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<IdentityUser, object>(x => x.UserName)">UserName</MudTableSortLabel>
+                            </MudTh>
+                            <MudTh>
+                                <MudTableSortLabel SortBy="new Func<IdentityUser, object>(x => x.Email)">Email</MudTableSortLabel>
+                            </MudTh>
+                            <MudTh></MudTh>
+                        </HeaderContent>
 
+                        <RowTemplate>
+                            <MudTd DataLabel="Id">@context.Id</MudTd>
+                            <MudTd DataLabel="UserName">@context.UserName</MudTd>
+                            <MudTd DataLabel="Email">@context.Email</MudTd>
+                            <MudTd DataLabel="UserControls">
+                                <MudButton OnClick="@(() => OpenEditDialog(@context))" MudPallet Variant="Variant.Filled" Color="Color.Info" >Edit</MudButton>
+                                <MudButton OnClick="@(() => DeleteUser(@context))" MudPallet Variant="Variant.Filled" Color="Color.Error" >Delete</MudButton>
+                            </MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager PageSizeOptions="new int[] { 50, 100 }"/>
+                        </PagerContent>
+                    </MudTable>
+                </MudItem>
 
+            </MudGrid>
         }
         else
         {
@@ -50,8 +68,17 @@
 
 @code {
 
-    private void OpenDialog(IdentityUser user)
+    private void OpenEditDialog(IdentityUser user)
     {
-        DialogService.Show<DialogEditUser>("Editing " + user.UserName,parameters: new DialogParameters{["User"]=user});
+        DialogService.Show<DialogEditUser>("Editing " + user.UserName,
+            parameters: new DialogParameters { ["User"] = user },
+            options: new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
     }
+
+    private void OpenCreateDialog()
+    {
+        DialogService.Show<DialogCreateUser>("New User",
+            options: new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+    }
+
 }

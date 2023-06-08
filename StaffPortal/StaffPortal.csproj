@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StaffPortal.Common\StaffPortal.Services.csproj" />
     <ProjectReference Include="..\StaffPortal.DataAccess\StaffPortal.DataAccess.csproj" />
   </ItemGroup>
 

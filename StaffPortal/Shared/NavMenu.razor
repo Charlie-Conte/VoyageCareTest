@@ -1,15 +1,32 @@
-﻿<MudNavMenu>
+﻿@using Microsoft.AspNetCore.Identity
+
+<MudNavMenu>
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
     <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
     <MudNavLink Href="fetchdata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Fetch data</MudNavLink>
     <AuthorizeView>
-        <Authorized>
-            <MudNavLink Href="claims-principle-data" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Layers">
-                GetClaimsPrincipalData
-            </MudNavLink>            
-            <MudNavLink Href="management/admin/index" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Key">
-                Administration
+        <Authorized Context="auth">
+            <MudNavLink Href="UserProfile" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">
+                User Profile
             </MudNavLink>
+            <MudNavLink Href="/Identity/Account/Manage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PersonOutline">
+                User Login Settings
+            </MudNavLink>
+
+            @if (auth.User.IsInRole(ADMINISTRATION_ROLE))
+            {
+                <MudNavLink Href="claims-principle-data" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Layers">
+                    GetClaimsPrincipalData
+                </MudNavLink>
+                <MudNavLink Href="management/admin/index" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Key">
+                    Administration
+                </MudNavLink>
+            }
         </Authorized>
     </AuthorizeView>
 </MudNavMenu>
+
+@code{
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string ADMINISTRATION_ROLE = "Administrators";
+}
